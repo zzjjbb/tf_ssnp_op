@@ -69,7 +69,7 @@ cc_binary(
 py_library(
     name = "time_two_ops_py",
     srcs = ([
-        "python/ops/time_two_ops.py",
+        "python/ops/ssnp_ops.py",
     ]),
     data = [
         ":python/ops/_time_two_ops.so"
@@ -80,9 +80,9 @@ py_library(
 py_test(
     name = "time_two_ops_py_test",
     srcs = [
-        "python/ops/time_two_ops_test.py"
+        "python/ops/ssnp_ops_test.py"
     ],
-    main = "python/ops/time_two_ops_test.py",
+    main = "python/ops/ssnp_ops_test.py",
     deps = [
         ":time_two_ops_py",
     ],

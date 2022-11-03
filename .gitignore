@@ -1,5 +1,11 @@
 *.bak
 .idea
 *~
+
+# compiled file
 *.o
 *.so
+
+# python temp file
+__pycache__
+*.pyc
