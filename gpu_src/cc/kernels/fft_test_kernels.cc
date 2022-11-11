@@ -5,9 +5,11 @@
 #define EIGEN_USE_GPU
 #endif  // GOOGLE_CUDA
 
-#include "ssnp.h"
+#include "ssnp_cufft.h"
 #include "tensorflow/core/framework/op_kernel.h"
 #include "tensorflow/core/platform/logging.h"
+
+typedef Eigen::GpuDevice GPUDevice;
 
 namespace tensorflow {
 

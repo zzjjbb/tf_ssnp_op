@@ -1,1 +1,1 @@
-from .python.ops.ssnp_ops import time_two
+from .python.ops.ssnp_ops import scatt_lib

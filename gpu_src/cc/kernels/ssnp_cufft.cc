@@ -2,16 +2,13 @@
 // Wrapper for cuFFT. Only 2D complex fft with dtype complex64/complex128 (C2C/Z2Z) is implemented.
 // Support batch FFT2d (i.e. supports any dim_size but only calculates on the innermost 2 dims)
 
-#if GOOGLE_CUDA
-#define EIGEN_USE_GPU
+#include "ssnp_cufft.h"
 #include "tensorflow/core/platform/stream_executor.h"
-#endif  // GOOGLE_CUDA
-
-#include "ssnp.h"
 #include "tensorflow/core/framework/op_kernel.h"
 #include "tensorflow/core/platform/logging.h"
 
 static constexpr bool DEBUG = true;
+typedef Eigen::GpuDevice GPUDevice;
 
 namespace tensorflow {
 
@@ -26,7 +23,7 @@ se::DeviceMemory<T> AsDeviceMemory(const T *cuda_memory, uint64 size) {
 
 class CufftScratchAllocator : public se::ScratchAllocator {
 public:
-    ~CufftScratchAllocator() override {}
+    ~CufftScratchAllocator() override {} // NOLINT(modernize-use-equals-default)
 
     CufftScratchAllocator(int64_t memory_limit, OpKernelContext *context)
             : memory_limit_(memory_limit), total_byte_size_(0), context_(context) {}

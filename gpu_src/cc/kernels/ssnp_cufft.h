@@ -1,16 +1,12 @@
 // Created by Jiabei, last modified 10/27/2022
 
-#ifndef KERNELS_SSNP_H_
-#define KERNELS_SSNP_H_
+#ifndef KERNELS_SSNP_CUFFT_H_
+#define KERNELS_SSNP_CUFFT_H_
 
-#include <unsupported/Eigen/CXX11/Tensor>
 #include "tensorflow/core/platform/stream_executor.h"
 #include "tensorflow/core/framework/op_kernel.h"
 
 namespace tensorflow {
-
-class OpKernelContext;
-typedef Eigen::GpuDevice GPUDevice;
 
 namespace functor {
 
@@ -24,8 +20,6 @@ struct FFTFunctor {
   bool operator()(const T* in_mem, T* out_mem);
 };
 
-}  // namespace functor
+}}  // namespace functor, tensorflow
 
-}  // namespace tensorflow
-
-#endif //KERNELS_SSNP_H_
+#endif //KERNELS_SSNP_CUFFT_H_

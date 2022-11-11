@@ -18,49 +18,26 @@ try:
 except ImportError:
     import ssnp_ops
 
+rng = np.random.default_rng(1227)
 
-class FFTTest(test.TestCase):
-    """
-    Test for tf.scatt_lib._ifft2d / _ssnp_ops_lib.fft_test
-    """
+
+class SSNPTest(test.TestCase):
     FORWARD = True
-    XY_SHAPE = (1024, 1024)
-    BATCH_SHAPE = (8, 1, 3)
+    XY_SHAPE = (512, 512)
+    BATCH = 8
+    dz = 1
 
-    def fft_test_body(self, is_forward, shape, dtype):
-        rng = np.random.default_rng(1227)
+    def ssnp_test_body(self, shape, dtype):
         in_arr = rng.random(shape, np.float64) + rng.random(shape, np.float64) * 1j - (0.5 + 0.5j)
-        out_arr = np.fft.fft2(in_arr) if is_forward else np.fft.ifft2(in_arr) * np.prod(self.XY_SHAPE)
         with self.cached_session(force_gpu=True):
-            in_tensor = tf.constant(in_arr, dtype=dtype)
-            if is_forward:
-                out_tensor = tf.scatt_lib._fft2d(in_tensor)
-            else:
-                out_tensor = tf.scatt_lib._ifft2d(in_tensor)
-            tf_logging.info(f"L2 difference against numpy.fft.fft2 with {dtype}: "
-                            f"{np.linalg.norm(out_tensor.numpy() - out_arr):.6g}")
-            if dtype == tf.complex64:
-                atol = 1e-8
-            else:
-                atol = 1e-16
-            custom_atol = max(atol * np.prod(self.XY_SHAPE), atol * 10)
-            self.assertAllClose(out_tensor.numpy(), out_arr, atol=custom_atol, rtol=0)
+            in1_tensor = tf.constant(in_arr, dtype=dtype)
+            in2_tensor = tf.constant(in_arr, dtype=dtype)
+            out1_tensor, out2_tensor = tf.scatt_lib.ssnp(in1_tensor, in2_tensor, res=(1, 2, 3))
+            tf_logging.info(f"shape: {out1_tensor.shape}, {out2_tensor.shape}")
 
     @test_util.run_cuda_only
-    def test_complex64(self):
-        self.fft_test_body(is_forward=self.FORWARD, shape=self.XY_SHAPE, dtype=tf.complex64)
-
-    @test_util.run_cuda_only
-    def test_complex128(self):
-        self.fft_test_body(is_forward=self.FORWARD, shape=self.XY_SHAPE, dtype=tf.complex128)
-
-    @test_util.run_cuda_only
-    def test_fft_batch(self):
-        self.fft_test_body(is_forward=self.FORWARD, shape=(*self.BATCH_SHAPE, *self.XY_SHAPE), dtype=tf.complex128)
-
-
-class IFFTTest(FFTTest):
-    FORWARD = False  # inver
+    def test_free_c64(self):
+        self.ssnp_test_body(shape=self.XY_SHAPE, dtype=tf.complex64)
 
 
 if __name__ == '__main__':
