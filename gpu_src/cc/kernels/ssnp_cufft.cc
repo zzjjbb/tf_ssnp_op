@@ -14,6 +14,10 @@ namespace tensorflow {
 
 namespace {
 
+// The following part is copied from https://github.com/tensorflow/tensorflow/blob/r2.9/tensorflow/core/kernels/fft_ops.cc
+// Copyright 2015 The TensorFlow Authors.
+// SPDX-License-Identifier: Apache-2.0
+// Start of copy from TensorFlow implementation
 template<typename T>
 se::DeviceMemory<T> AsDeviceMemory(const T *cuda_memory, uint64 size) {
   se::DeviceMemoryBase wrapped(const_cast<T *>(cuda_memory), size * sizeof(T));
@@ -61,6 +65,8 @@ private:
     OpKernelContext *context_;
     std::vector<Tensor> allocated_tensors_;
 };
+
+// Start of copy from TensorFlow implementation
 
 template<typename T>
 constexpr se::fft::Type get_fft_type(bool forward) {
