@@ -57,10 +57,10 @@ public:
     extern template struct FFTFunctor<GPUDevice, T, true>;            \
     extern template struct FFTFunctor<GPUDevice, T, false>;           \
     REGISTER_KERNEL_BUILDER(                                          \
-      Name("FFTTest").Device(DEVICE_GPU).TypeConstraint<T>("Field"),  \
+      Name("ScattLibTestFFT").Device(DEVICE_GPU).TypeConstraint<T>("Field"),  \
       FFTTestOp<GPUDevice, T, true>);                                 \
     REGISTER_KERNEL_BUILDER(                                          \
-      Name("IFFTTest").Device(DEVICE_GPU).TypeConstraint<T>("Field"), \
+      Name("ScattLibTestIFFT").Device(DEVICE_GPU).TypeConstraint<T>("Field"), \
       FFTTestOp<GPUDevice, T, false>);
 REGISTER_GPU(complex64)
 REGISTER_GPU(complex128)

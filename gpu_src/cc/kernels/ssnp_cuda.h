@@ -1,5 +1,4 @@
-//
-// Created by b on 11/10/2022.
+// Created by Jiabei, last modified on 01/25/2023
 //
 
 #ifndef KERNELS_SSNP_CUDA_H_

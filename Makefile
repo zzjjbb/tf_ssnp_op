@@ -38,7 +38,7 @@ SSNP_LIB_ALL = $(SSNP_CUFFT_LIB) $(SSNP_CUDA_LIB) $(FFT_TEST_KERNELS_LIB) $(SSNP
 # 	./build_pip_pkg.sh make artifacts
 
 $(SSNP_CUDA_LIB): $(SSNP_CUDA) $(KERNEL_DIR)/ssnp_cuda.h
-	$(NVCC) -ccbin $(CXX) -std=c++14 -c -o $@ $<  $(TF_CFLAGS) -D GOOGLE_CUDA=1 -x cu -Xcompiler -fPIC -DNDEBUG --expt-relaxed-constexpr
+	$(NVCC) -ccbin=$(CXX) -std=c++14 -c -o $@ $<  $(TF_CFLAGS) -D GOOGLE_CUDA=1 -x cu -Xcompiler -fPIC -DNDEBUG --expt-relaxed-constexpr
 
 $(SSNP_CUFFT_LIB): $(SSNP_CUFFT) $(KERNEL_DIR)/ssnp_cufft.h
 	$(CXX) $(CUDA_CFLAGS) -o $@ $< $(CUDA_LDFLAGS) -D GOOGLE_CUDA=1

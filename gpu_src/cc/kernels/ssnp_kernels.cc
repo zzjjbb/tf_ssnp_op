@@ -1,4 +1,4 @@
-// Created by Jiabei, last modified 10/27/2022
+// Created by Jiabei, last modified on 01/25/2023
 //
 
 #if GOOGLE_CUDA
@@ -29,7 +29,7 @@ public:
     const Tensor &i1_tensor = context->input(0);
     const Tensor &i2_tensor = context->input(1);
     const auto shape = i1_tensor.shape();
-    const Device d = context->eigen_device<Device>();
+    const Device &d = context->eigen_device<Device>();
     const int dims = shape.dims();
     OP_REQUIRES(context, shape.num_elements() < 2LL<<30, errors::InvalidArgument("input arrays are too large"));
     OP_REQUIRES(context, shape == i2_tensor.shape(),

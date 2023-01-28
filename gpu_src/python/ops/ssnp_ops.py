@@ -7,10 +7,10 @@ _ssnp_ops_lib = load_library.load_op_library(
     resource_loader.get_path_to_datafile('_ssnp_ops.so'))
 
 scatt_lib = type('ScattLib', (), {
-    'ssnp': _ssnp_ops_lib.ssnp,
+    'ssnp': _ssnp_ops_lib.scatt_lib_ssnp,
     # 'ssnp_grad': _ssnp_ops_lib.ssnp,
-    '_fft2d': _ssnp_ops_lib.fft_test,
-    '_ifft2d': _ssnp_ops_lib.ifft_test
+    '_fft2d': _ssnp_ops_lib.scatt_lib_test_fft,
+    '_ifft2d': _ssnp_ops_lib.scatt_lib_test_ifft
 })
 
 tensorflow.scatt_lib = scatt_lib
