@@ -1,4 +1,4 @@
-// Created by Jiabei, last modified 01/10/2023
+// Created by Jiabei, last modified 01/29/2023
 //
 
 #include "tensorflow/core/framework/op.h"
@@ -7,6 +7,8 @@
 
 using namespace tensorflow;
 using shape_inference::InferenceContext;
+using shape_inference::ShapeHandle;
+using shape_inference::DimensionHandle;
 
 REGISTER_OP("ScattLibTestFFT")
     .Attr("Field: {complex64, complex128}")
@@ -25,14 +27,18 @@ REGISTER_OP("ScattLibTestIFFT")
     });
 
 REGISTER_OP("ScattLibTestMakeP")
-        .Attr("Field: {complex64, complex128}")
-        .Attr("P: {float, double}")
-        .Input("in: Field")
-        .Output("out: P")
-        .SetShapeFn([](::tensorflow::shape_inference::InferenceContext* c) {
-            c->set_output(0, c->input(0));
-            return Status::OK();
-        });
+    .Attr("Field: {complex64, complex128}")
+    .Attr("res: list(float) >= 3")
+    .Attr("dz: float = 1.0")
+    .Attr("dtype: {float, double}")
+    .Input("in: Field")
+    .Output("out: dtype")
+    .SetShapeFn([](::tensorflow::shape_inference::InferenceContext* c) {
+        ShapeHandle out;
+        TF_RETURN_IF_ERROR(c->Concatenate(c->input(0), c->Vector(3), &out));
+        c->set_output(0, out);
+        return Status::OK();
+    });
 
 REGISTER_OP("ScattLibSSNP")
     .Attr("Field: {complex64, complex128}")

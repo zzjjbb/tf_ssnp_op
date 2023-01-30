@@ -1,4 +1,4 @@
-// Created by Jiabei, last modified on 01/25/2023
+// Created by Jiabei, last modified on 01/29/2023
 //
 
 #if GOOGLE_CUDA
@@ -12,9 +12,7 @@
 
 typedef Eigen::GpuDevice GPUDevice;
 
-namespace tensorflow {
-
-namespace functor {
+namespace tensorflow { namespace functor { namespace scatt_lib {
 
 // OpKernel definition.
 // template parameter <T> is the datatype of the tensors.
@@ -46,10 +44,8 @@ public:
                                                      &o2_tensor));
 
     // Create p tensor
-    Tensor p00_tensor, p01_tensor, p10_tensor;
-    OP_REQUIRES_OK(context, context->allocate_temp(CmplxToRealEnum<DTYPE>::value, shape, &p00_tensor));
-    OP_REQUIRES_OK(context, context->allocate_temp(CmplxToRealEnum<DTYPE>::value, shape, &p01_tensor));
-    OP_REQUIRES_OK(context, context->allocate_temp(CmplxToRealEnum<DTYPE>::value, shape, &p10_tensor));
+    Tensor p_tensor;
+    OP_REQUIRES_OK(context, context->allocate_temp(CmplxToRealEnum<DTYPE>::value, shape, &p_tensor));
 
 
 //    Tensor *u2_tensor = nullptr;
@@ -64,21 +60,23 @@ public:
     // give the memory a name related to physics quantity
     auto *u1 = i1_tensor.flat<DTYPE>().data(), *u2 = i2_tensor.flat<DTYPE>().data();
     auto *a1 = o1_tensor->flat<DTYPE>().data(), *a2 = o2_tensor->flat<DTYPE>().data();
-    auto *p00 = p00_tensor.flat<typename CmplxToRealType<DTYPE>::Type>().data();
-    auto *p01 = p01_tensor.flat<typename CmplxToRealType<DTYPE>::Type>().data();
-    auto *p10 = p10_tensor.flat<typename CmplxToRealType<DTYPE>::Type>().data();
+    auto *pAB = p_tensor.flat<typename CmplxToRealType<DTYPE>::Type>().data();
     string shape_str = shape.DebugString();
     auto fft_err = errors::Internal("forward fft failed, ssnp shape=", shape_str);
     auto ifft_err = errors::Internal("inverse fft failed, ssnp shape=", shape_str);
+//    make_p<RTYPE>(d, pAB, static_cast<int>(shape.dim_size(0)), static_cast<int>(shape.dim_size(1)),
+//                  1, 1, 1, 1);
     for (int i=0; i<1; i++) {
       OP_REQUIRES(context, fft(u1, a1), fft_err);
       OP_REQUIRES(context, fft(u2, a2), fft_err);
-      rot_ang_spec(a1, a2, p00, p01, p10);
+      rot_ang_spec(a1, a2, pAB);
       OP_REQUIRES(context, ifft(a1, a1), ifft_err);
       OP_REQUIRES(context, ifft(a2, a2), ifft_err);
       u1 = a1; u2 = a2; // all in-place operation from now
     }
   }
+private:
+  typedef typename CmplxToRealType<DTYPE>::Type RTYPE;
 }; // SSNPOp
 
 // Register the GPU kernels.
@@ -93,6 +91,7 @@ public:
 
 REGISTER_GPU(complex64)
 REGISTER_GPU(complex128)
+#undef REGISTER_GPU
 #endif  // GOOGLE_CUDA
 
-}} // namespace functor, tensorflow
+}}} // namespace scatt_lib, functor, tensorflow

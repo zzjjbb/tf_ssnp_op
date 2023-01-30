@@ -8,7 +8,6 @@
 #include "tensorflow/core/platform/logging.h"
 
 static constexpr bool DEBUG = true;
-typedef Eigen::GpuDevice GPUDevice;
 
 namespace tensorflow {
 
@@ -86,6 +85,8 @@ constexpr se::fft::Type get_fft_type<complex128>(bool forward) {
 } // end namespace
 
 namespace functor {
+namespace scatt_lib {
+typedef Eigen::GpuDevice GPUDevice;
 
 template<typename T, bool FORWARD>
 struct FFTFunctor<GPUDevice, T, FORWARD> {
@@ -151,5 +152,5 @@ template struct FFTFunctor<GPUDevice, complex64, true>;
 template struct FFTFunctor<GPUDevice, complex128, true>;
 template struct FFTFunctor<GPUDevice, complex64, false>;
 template struct FFTFunctor<GPUDevice, complex128, false>;
-}  // namespace functor
+}}  // namespace scatt_lib, functor
 }  // namespace tensorflow

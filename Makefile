@@ -20,6 +20,7 @@ KERNEL_DIR = gpu_src/cc/kernels
 SSNP_CUFFT = $(KERNEL_DIR)/ssnp_cufft.cc
 SSNP_CUDA = $(KERNEL_DIR)/ssnp_cuda.cu.cc
 FFT_TEST_KERNELS = $(KERNEL_DIR)/fft_test_kernels.cc
+CUDA_TEST_KERNELS = $(KERNEL_DIR)/cuda_test_kernels.cc
 SSNP_KERNELS = $(KERNEL_DIR)/ssnp_kernels.cc
 SSNP_OPS = $(wildcard gpu_src/cc/ops/*.cc)
 
@@ -27,6 +28,7 @@ LIB_DIR = gpu_src/python/ops
 SSNP_CUFFT_LIB = $(LIB_DIR)/_ssnp_cufft.o
 SSNP_CUDA_LIB = $(LIB_DIR)/_ssnp_kernels.cu.o
 FFT_TEST_KERNELS_LIB = $(LIB_DIR)/_fft_kernels.o
+CUDA_TEST_KERNELS_LIB = $(LIB_DIR)/_cuda_kernels.o
 SSNP_KERNELS_LIB = $(LIB_DIR)/_ssnp_kernels.o
 SSNP_OPS_LIB = $(LIB_DIR)/_ssnp_ops.so
 SSNP_LIB_ALL = $(SSNP_CUFFT_LIB) $(SSNP_CUDA_LIB) $(FFT_TEST_KERNELS_LIB) $(SSNP_KERNELS_LIB) $(SSNP_OPS_LIB)
@@ -40,6 +42,9 @@ SSNP_LIB_ALL = $(SSNP_CUFFT_LIB) $(SSNP_CUDA_LIB) $(FFT_TEST_KERNELS_LIB) $(SSNP
 $(SSNP_CUDA_LIB): $(SSNP_CUDA) $(KERNEL_DIR)/ssnp_cuda.h
 	$(NVCC) -ccbin=$(CXX) -std=c++14 -c -o $@ $<  $(TF_CFLAGS) -D GOOGLE_CUDA=1 -x cu -Xcompiler -fPIC -DNDEBUG --expt-relaxed-constexpr
 
+$(CUDA_TEST_KERNELS_LIB): $(CUDA_TEST_KERNELS) $(KERNEL_DIR)/ssnp_cuda.h
+	$(CXX) $(CUDA_CFLAGS) -o $@ $< $(CUDA_LDFLAGS) -D GOOGLE_CUDA=1 -D SCATT_LIB_DEBUG=1
+
 $(SSNP_CUFFT_LIB): $(SSNP_CUFFT) $(KERNEL_DIR)/ssnp_cufft.h
 	$(CXX) $(CUDA_CFLAGS) -o $@ $< $(CUDA_LDFLAGS) -D GOOGLE_CUDA=1
 
@@ -49,18 +54,22 @@ $(FFT_TEST_KERNELS_LIB): $(FFT_TEST_KERNELS) $(KERNEL_DIR)/ssnp_cufft.h
 $(SSNP_KERNELS_LIB): $(SSNP_KERNELS) $(KERNEL_DIR)/ssnp_cufft.h $(KERNEL_DIR)/ssnp_cuda.h
 	$(CXX) $(CUDA_CFLAGS) -o $@ $< $(CUDA_LDFLAGS) -D GOOGLE_CUDA=1
 
-$(SSNP_OPS_LIB): $(SSNP_OPS) $(SSNP_CUFFT_LIB) $(FFT_TEST_KERNELS_LIB) $(SSNP_KERNELS_LIB) $(SSNP_CUDA_LIB)
+$(SSNP_OPS_LIB): $(SSNP_OPS) $(SSNP_CUFFT_LIB) $(FFT_TEST_KERNELS_LIB) $(SSNP_KERNELS_LIB) $(SSNP_CUDA_LIB) $(CUDA_TEST_KERNELS_LIB)
 	$(CXX) $(CFLAGS) -o $@ $^ $(LDFLAGS) -D GOOGLE_CUDA=1
 
 build_ssnp_ops: $(SSNP_OPS_LIB)
 
 ssnp_test: SHELL := /bin/bash -l
-ssnp_test: gpu_src/python/ops/ssnp_ops_test.py gpu_src/python/ops/ssnp_ops.py $(SSNP_OPS_LIB)
+ssnp_test: $(SSNP_OPS_LIB)
 	source /usr3/graduate/zjb/tf-dev; $(PYTHON_BIN_PATH) gpu_src/python/ops/ssnp_ops_test.py
 
 fft_test: SHELL := /bin/bash -l
-fft_test: gpu_src/python/ops/ssnp_ops_test.py gpu_src/python/ops/ssnp_ops.py $(SSNP_OPS_LIB)
+fft_test: $(SSNP_OPS_LIB)
 	source /usr3/graduate/zjb/tf-dev; $(PYTHON_BIN_PATH) gpu_src/python/ops/fft_ops_test.py
+
+cuda_test: SHELL := /bin/bash -l
+cuda_test: $(SSNP_OPS_LIB)
+	source /usr3/graduate/zjb/tf-dev; $(PYTHON_BIN_PATH) gpu_src/python/ops/cuda_test.py
 
 clean:
 	rm -f $(SSNP_LIB_ALL)

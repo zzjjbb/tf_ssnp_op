@@ -10,7 +10,8 @@ scatt_lib = type('ScattLib', (), {
     'ssnp': _ssnp_ops_lib.scatt_lib_ssnp,
     # 'ssnp_grad': _ssnp_ops_lib.ssnp,
     '_fft2d': _ssnp_ops_lib.scatt_lib_test_fft,
-    '_ifft2d': _ssnp_ops_lib.scatt_lib_test_ifft
+    '_ifft2d': _ssnp_ops_lib.scatt_lib_test_ifft,
+    '_makeP': _ssnp_ops_lib.scatt_lib_test_make_p
 })
 
 tensorflow.scatt_lib = scatt_lib

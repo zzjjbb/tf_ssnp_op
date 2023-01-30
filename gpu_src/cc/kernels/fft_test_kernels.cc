@@ -1,4 +1,4 @@
-// Created by Jiabei, last modified 10/27/2022
+// Created by Jiabei, last modified 01/30/2023
 //
 
 #if GOOGLE_CUDA
@@ -11,9 +11,7 @@
 
 typedef Eigen::GpuDevice GPUDevice;
 
-namespace tensorflow {
-
-namespace functor {
+namespace tensorflow { namespace functor { namespace scatt_lib {
 
 // OpKernel definition.
 // template parameter <T> is the datatype of the tensors.
@@ -64,5 +62,6 @@ public:
       FFTTestOp<GPUDevice, T, false>);
 REGISTER_GPU(complex64)
 REGISTER_GPU(complex128)
+#undef REGISTER_GPU
 #endif  // GOOGLE_CUDA
-}} // namespace functor, tensorflow
+}}} // namespace functor, tensorflow
