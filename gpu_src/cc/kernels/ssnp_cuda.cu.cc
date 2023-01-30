@@ -5,9 +5,10 @@
 
 #define EIGEN_USE_GPU
 
-#include "ssnp_cuda.h"
+#include <math_constants.h>
 #include "tensorflow/core/util/gpu_kernel_helper.h"
 #include "tensorflow/core/util/gpu_launch_config.h"
+#include "ssnp_cuda.h"
 
 namespace tensorflow { namespace functor { namespace scatt_lib {
 
@@ -41,11 +42,11 @@ __global__ void make_p_kernel(RT *pAB, int i_size, int j_size) {
     for (int j: GpuGridRangeY(j_size)) {
       gamma_ij = c_gamma<RT>(i, j, i_size, j_size);
       eva_ij = exp(min(gamma_ij * 20. - 4., static_cast<RT>(0)));
-      kz_ij = gamma_ij * 2 * phys_param.z_res;
+      kz_ij = gamma_ij * 2 * CUDART_PI * phys_param.z_res;
       ptr_ij = pAB + (i * j_size + j) * 3;
-      ptr_ij[0] = cospi(kz_ij * phys_param.dz) * eva_ij; // p00 and p11
-      ptr_ij[1] = -sinpi(kz_ij * phys_param.dz) * kz_ij * eva_ij; // p01
-      ptr_ij[2] = sinpi(kz_ij * phys_param.dz) / kz_ij * eva_ij;  // p10
+      ptr_ij[0] = cos(kz_ij * phys_param.dz) * eva_ij; // p00 and p11
+      ptr_ij[1] = -sin(kz_ij * phys_param.dz) * kz_ij * eva_ij; // p01
+      ptr_ij[2] = sin(kz_ij * phys_param.dz) / kz_ij * eva_ij;  // p10
     }
 }
 
